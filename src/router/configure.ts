@@ -27,7 +27,7 @@ const routesOther: Array<RouteConfig> = [
 	{
 		path: 'role',
 		component: lazy(() => import('@/views/role')),
-		meta: { title: '用户' },
+		meta: { title: '角色' },
 		name: 'Role',
 	},
 	{
