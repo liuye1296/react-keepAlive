@@ -1,9 +1,3 @@
-/*
- * @Description:
- * @Autor: Chan
- * @Date: 2021-05-31 10:01:19
- * @LastEditTime: 2021-11-10 17:51:47
- */
 import { FunctionComponent, memo, Suspense, useCallback, useEffect, useMemo, useReducer } from 'react'
 import { BackTop, Layout as ALayout, Menu } from 'antd'
 import { Link, useLocation, useNavigate, useRoutes } from 'react-router-dom'
