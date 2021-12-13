@@ -64,7 +64,7 @@ export const routes: Array<RouteConfig> = [
 	},
 	{
 		path: '/*',
-		component: lazy(() => import('@/Layout')),
+		component: lazy(() => import('@/layout')),
 		meta: { title: 'erp' },
 		name: 'erp',
 		children: routesOther,
