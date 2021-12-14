@@ -13,20 +13,20 @@ import {
 } from 'react'
 type Children = ReactElement<any, string | JSXElementConstructor<any>> | null
 interface Props {
-	active?: string
+	activeName?: string
 	isAsyncInclude: boolean // 是否异步添加 Include  如果不是又填写了 true 会导致重复渲染
 	include?: Array<string>
 	exclude?: Array<string>
 	maxLen?: number
 	children: Children
 }
-function KeepAlive({ active, children, exclude, include, isAsyncInclude, maxLen = 10 }: Props) {
+function KeepAlive({ activeName, children, exclude, include, isAsyncInclude, maxLen = 10 }: Props) {
 	const containerRef = useRef<HTMLDivElement>(null)
 	const components = useRef<Array<{ name: string; ele: Children }>>([])
 	const [asyncInclude] = useState<boolean>(isAsyncInclude)
 	const update = useUpdate()
 	useLayoutEffect(() => {
-		if (isNil(active)) {
+		if (isNil(activeName)) {
 			return
 		}
 		// 缓存超过上限的
@@ -34,12 +34,12 @@ function KeepAlive({ active, children, exclude, include, isAsyncInclude, maxLen 
 			components.current = components.current.slice(1)
 		}
 		// 添加
-		const component = components.current.find((res) => equals(res.name, active))
+		const component = components.current.find((res) => equals(res.name, activeName))
 		if (isNil(component)) {
 			components.current = [
 				...components.current,
 				{
-					name: active,
+					name: activeName,
 					ele: children,
 				},
 			]
@@ -61,13 +61,13 @@ function KeepAlive({ active, children, exclude, include, isAsyncInclude, maxLen 
 				return true
 			}, components.current)
 		}
-	}, [children, active, exclude, maxLen, include, update, asyncInclude])
+	}, [children, activeName, exclude, maxLen, include, update, asyncInclude])
 	return (
 		<>
 			<div ref={containerRef} className="keep-alive" />
 			{map(
 				({ name, ele }) => (
-					<Component active={equals(name, active)} renderDiv={containerRef} name={name} key={name}>
+					<Component active={equals(name, activeName)} renderDiv={containerRef} name={name} key={name}>
 						{ele}
 					</Component>
 				),

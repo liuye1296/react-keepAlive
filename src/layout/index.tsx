@@ -135,7 +135,7 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 					<TagsView delKeepAlive={delKeepAlive} keepAliveList={keepAliveList} />
 					<ALayout.Content className="app-content">
 						<Suspense fallback={<Loading />}>
-							<KeepAlive active={matchRouteObj?.key} include={include} isAsyncInclude>
+							<KeepAlive activeName={matchRouteObj?.key} include={include} isAsyncInclude>
 								{ele}
 							</KeepAlive>
 						</Suspense>

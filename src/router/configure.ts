@@ -46,13 +46,6 @@ const routesOther: Array<RouteConfig> = [
 	},
 ]
 export const routes: Array<RouteConfig> = [
-	// {
-	// 	path: '/login',
-	// 	component: login,
-	// 	notLogin: true,
-	// 	meta: { title: '登录' },
-	// 	name: 'login',
-	// },
 	{
 		path: '/404',
 		component: NotFound,
