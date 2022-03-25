@@ -7,7 +7,6 @@ import {
 	ReactElement,
 	RefObject,
 	useEffect,
-	useLayoutEffect,
 	useRef,
 	useState,
 } from 'react'
@@ -25,7 +24,7 @@ function KeepAlive({ activeName, children, exclude, include, isAsyncInclude, max
 	const components = useRef<Array<{ name: string; ele: Children }>>([])
 	const [asyncInclude] = useState<boolean>(isAsyncInclude)
 	const update = useUpdate()
-	useLayoutEffect(() => {
+	useEffect(() => {
 		if (isNil(activeName)) {
 			return
 		}
