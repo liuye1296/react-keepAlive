@@ -84,9 +84,9 @@ interface Props {
 }
 function getLatchRouteByEle(
 	ele: React.ReactElement<any, string | React.JSXElementConstructor<any>>
-): RouteMatch<string>[] | null {
+): RouteMatch[] | null {
 	const data = ele?.props.value
-	return isNil(data.outlet) ? (data.matches as RouteMatch<string>[]) : getLatchRouteByEle(data.outlet)
+	return isNil(data.outlet) ? (data.matches as RouteMatch[]) : getLatchRouteByEle(data.outlet)
 }
 const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 	const eleRef = useRef<React.ReactElement<any, string | React.JSXElementConstructor<any>> | null>()
