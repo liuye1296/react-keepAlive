@@ -1,58 +1,51 @@
 import ReactDOM from 'react-dom'
-import { equals, isNil, map, filter, not } from 'ramda'
-import { useUpdate } from '@/hooks/useUpdate'
-import { JSXElementConstructor, memo, ReactElement, RefObject, useEffect, useRef, useState } from 'react'
-type Children = ReactElement<any, string | JSXElementConstructor<any>> | null
-interface Props {
+import { equals, isNil, map, filter } from 'ramda'
+import { memo, RefObject, useEffect, useRef, useState } from 'react'
+export interface ComponentReactElement {
+	children?: React.ReactNode | React.ReactNode[]
+}
+interface Props extends ComponentReactElement {
 	activeName?: string
-	isAsyncInclude: boolean // 是否异步添加 Include  如果不是又填写了 true 会导致重复渲染
 	include?: Array<string>
 	exclude?: Array<string>
 	maxLen?: number
-	children: Children
 }
-function KeepAlive({ activeName, children, exclude, include, isAsyncInclude, maxLen = 10 }: Props) {
+function KeepAlive({ activeName, children, exclude, include, maxLen = 10 }: Props) {
 	const containerRef = useRef<HTMLDivElement>(null)
-	const components = useRef<Array<{ name: string; ele: Children }>>([])
-	const [asyncInclude] = useState<boolean>(isAsyncInclude)
-	const update = useUpdate()
+	const [cacheComponents, setCacheComponents] = useState<Array<{ name: string; ele?: React.ReactNode }>>([])
 	useEffect(() => {
 		if (isNil(activeName)) {
 			return
 		}
-		// 缓存超过上限的
-		if (components.current.length >= maxLen) {
-			components.current = components.current.slice(1)
-		}
-		// 添加
-		const component = components.current.find((res) => equals(res.name, activeName))
-		if (isNil(component)) {
-			components.current = [
-				...components.current,
-				{
-					name: activeName,
-					ele: children,
-				},
-			]
-			if (not(asyncInclude)) {
-				update()
+		setCacheComponents((components) => {
+			// 缓存超过上限的
+			if (components.length >= maxLen) {
+				components = components.slice(1)
 			}
-		}
-		return () => {
-			if (isNil(exclude) && isNil(include)) {
-				return
+			// 添加
+			const component = components.find((res) => equals(res.name, activeName))
+			if (isNil(component)) {
+				components = [
+					...components,
+					{
+						name: activeName,
+						ele: children,
+					},
+				]
 			}
-			components.current = filter(({ name }) => {
-				if (exclude && exclude.includes(name)) {
-					return false
-				}
-				if (include) {
-					return include.includes(name)
-				}
-				return true
-			}, components.current)
-		}
-	}, [children, activeName, exclude, maxLen, include, update, asyncInclude])
+			return isNil(exclude) && isNil(include)
+				? components
+				: filter(({ name }) => {
+						if (exclude && exclude.includes(name)) {
+							return false
+						}
+						if (include) {
+							return include.includes(name)
+						}
+						return true
+				  }, components)
+		})
+	}, [children, activeName, exclude, maxLen, include])
 	return (
 		<>
 			<div ref={containerRef} className="keep-alive" />
@@ -62,15 +55,14 @@ function KeepAlive({ activeName, children, exclude, include, isAsyncInclude, max
 						{ele}
 					</Component>
 				),
-				components.current
+				cacheComponents
 			)}
 		</>
 	)
 }
 export default memo(KeepAlive)
-interface ComponentProps {
+interface ComponentProps extends ComponentReactElement {
 	active: boolean
-	children: Children
 	name: string
 	renderDiv: RefObject<HTMLDivElement>
 }

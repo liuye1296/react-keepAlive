@@ -47,6 +47,7 @@ function getMatchRouteObj(ele: React.ReactElement<any, string | React.JSXElement
 		title: data?.meta?.title ?? '',
 		name: data?.name ?? '',
 		selectedKeys,
+		include: isNil(data.children),
 	}
 }
 function mergePtah(path: string, paterPath = '') {
@@ -63,15 +64,18 @@ function renderMenu(data: Array<RouteConfig>, path?: string) {
 			if (route.alwaysShow) {
 				return
 			}
+			const hasChildren = isNil(children) || isEmpty(children)
 			items.push({
 				key: route.name,
 				title: route.meta?.title,
-				label: (
+				label: !hasChildren ? (
+					<span className="a-black">{route.meta?.title}</span>
+				) : (
 					<Link to={thisPath} className="a-black">
 						{route.meta?.title}
 					</Link>
 				),
-				children: isNil(children) || isEmpty(children) ? undefined : renderMenu(children, thisPath),
+				children: hasChildren ? undefined : renderMenu(children, thisPath),
 			})
 			return items
 		},
@@ -86,7 +90,8 @@ function getLatchRouteByEle(
 	ele: React.ReactElement<any, string | React.JSXElementConstructor<any>>
 ): RouteMatch[] | null {
 	const data = ele?.props.value
-	return isNil(data.outlet) ? (data.matches as RouteMatch[]) : getLatchRouteByEle(data.outlet)
+	const matches = data.matches as RouteMatch[]
+	return isNil(data.outlet) ? matches : getLatchRouteByEle(data.outlet)
 }
 const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 	const eleRef = useRef<React.ReactElement<any, string | React.JSXElementConstructor<any>> | null>()
@@ -102,24 +107,24 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 	}, [route.children])
 
 	// 匹配 当前路径要渲染的路由
-	eleRef.current = useRoutes(routeObject, location)
+	const ele = useRoutes(routeObject, location)
 	// 计算 匹配的路由name
 	const matchRouteObj = useMemo(() => {
-		if (eleRef.current) {
-			return getMatchRouteObj(eleRef.current)
-		}
-		return null
+		eleRef.current = ele
+		return getMatchRouteObj(ele)
 		// eslint-disable-next-line
 	}, [routeObject, location])
 	// 缓存渲染 & 判断是否404
 	useEffect(() => {
+		console.log(matchRouteObj)
 		if (matchRouteObj) {
-			dispatch({
-				type: ActionType.add,
-				payload: {
-					...matchRouteObj,
-				},
-			})
+			matchRouteObj.include &&
+				dispatch({
+					type: ActionType.add,
+					payload: {
+						...matchRouteObj,
+					},
+				})
 		} else if (!equals(location.pathname, '/')) {
 			navigate({
 				pathname: '/404',
@@ -157,7 +162,7 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 					<TagsView delKeepAlive={delKeepAlive} keepAliveList={keepAliveList} />
 					<ALayout.Content className="app-content">
 						<Suspense fallback={<Loading />}>
-							<KeepAlive activeName={matchRouteObj?.key} include={map((res) => res.key, keepAliveList)} isAsyncInclude>
+							<KeepAlive activeName={matchRouteObj?.key} include={map((res) => res.key, keepAliveList)}>
 								{eleRef.current}
 							</KeepAlive>
 						</Suspense>
