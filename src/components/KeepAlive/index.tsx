@@ -1,15 +1,7 @@
 import ReactDOM from 'react-dom'
 import { equals, isNil, map, filter, not } from 'ramda'
 import { useUpdate } from '@/hooks/useUpdate'
-import {
-	JSXElementConstructor,
-	memo,
-	ReactElement,
-	RefObject,
-	useEffect,
-	useRef,
-	useState,
-} from 'react'
+import { JSXElementConstructor, memo, ReactElement, RefObject, useEffect, useRef, useState } from 'react'
 type Children = ReactElement<any, string | JSXElementConstructor<any>> | null
 interface Props {
 	activeName?: string

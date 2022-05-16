@@ -1,11 +1,10 @@
-import { clone, equals, find, findIndex, is, isEmpty, last, map, mergeRight, pick, pipe } from 'ramda'
+import { equals, find, findIndex, is, isEmpty, last, map, mergeRight, pick, pipe } from 'ramda'
 import { Link } from 'react-router-dom'
 import { CloseOutlined } from '@ant-design/icons'
 import indexModule from './index.module.scss'
 import classNames from 'classnames/bind'
 const styles = classNames.bind(indexModule)
 import type { NavigateFunction } from 'react-router-dom'
-import { memo } from 'react'
 export interface TagsViewDto {
 	key: string
 	active: boolean
@@ -76,7 +75,7 @@ function delKeepAlive(keepAliveList: Array<TagsViewDto>, { key, navigate }: Acti
 	if (!isEmpty(pathname)) {
 		navigate({ pathname })
 	}
-	return clone(keepAliveList)
+	return keepAliveList.filter((_, k) => !equals(index, k))
 }
 const mergeMatchRoute = pipe(pick(['key', 'title', 'ele', 'name']), mergeRight({ active: true }))
 function addKeepAlive(state: Array<TagsViewDto>, matchRouteObj: ActionTypeAddPayload) {
@@ -177,4 +176,4 @@ function TagsView({ delKeepAlive, keepAliveList }: Props) {
 	)
 }
 
-export default memo(TagsView)
+export default TagsView

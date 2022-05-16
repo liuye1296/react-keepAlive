@@ -1,7 +1,7 @@
-import { FunctionComponent, memo, Suspense, useCallback, useEffect, useMemo, useReducer } from 'react'
+import { FunctionComponent, memo, Suspense, useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
 import { BackTop, Layout as ALayout, Menu } from 'antd'
 import { Link, useLocation, useNavigate, useRoutes } from 'react-router-dom'
-import { equals, isNil, last, map } from 'ramda'
+import { equals, filter, isEmpty, isNil, last, map, not, reduce } from 'ramda'
 import TagsView, { Action, ActionType, reducer } from './tagsView'
 import { Loading } from '@/components/Loading'
 import $styles from './tagsView/index.module.scss'
@@ -9,7 +9,7 @@ import type { RouteMatch, RouteObject } from 'react-router'
 import KeepAlive from '@/components/KeepAlive'
 import { ViewProvider } from '@/hooks/useView'
 import { RouteConfig } from '@/router/configure'
-
+import { ItemType } from 'antd/lib/menu/hooks/useItems'
 export interface RouteObjectDto extends RouteObject {
 	name: string
 	meta?: { title: string }
@@ -29,6 +29,26 @@ function makeRouteObject(routes: RouteConfig[], dispatch: React.Dispatch<Action>
 		}
 	}, routes)
 }
+
+function getMatchRouteObj(ele: React.ReactElement<any, string | React.JSXElementConstructor<any>> | null) {
+	if (isNil(ele)) {
+		return null
+	}
+	const matchRoute = getLatchRouteByEle(ele)
+	if (isNil(matchRoute)) {
+		return null
+	}
+	const selectedKeys: string[] = map((res) => {
+		return (res.route as RouteObjectDto).name
+	}, matchRoute)
+	const data = last(matchRoute)?.route as RouteObjectDto
+	return {
+		key: last(matchRoute)?.pathname ?? '',
+		title: data?.meta?.title ?? '',
+		name: data?.name ?? '',
+		selectedKeys,
+	}
+}
 function mergePtah(path: string, paterPath = '') {
 	// let pat = getGoto(path)
 	path = path.startsWith('/') ? path : '/' + path
@@ -36,19 +56,28 @@ function mergePtah(path: string, paterPath = '') {
 }
 // 渲染导航栏
 function renderMenu(data: Array<RouteConfig>, path?: string) {
-	return map((route) => {
-		const Icon = route.icon
-		const thisPath = mergePtah(route.path, path)
-		return route.alwaysShow ? null : isNil(route.children) ? (
-			<Menu.Item key={route.name} icon={Icon && <Icon />}>
-				<Link to={thisPath}>{route.meta?.title}</Link>
-			</Menu.Item>
-		) : (
-			<Menu.SubMenu title={route.meta?.title} key={route.name}>
-				{renderMenu(route.children, thisPath)}
-			</Menu.SubMenu>
-		)
-	}, data)
+	return reduce(
+		(items, route) => {
+			const thisPath = mergePtah(route.path, path)
+			const children = filter((route) => not(route.alwaysShow), route.children ?? [])
+			if (route.alwaysShow) {
+				return
+			}
+			items.push({
+				key: route.name,
+				title: route.meta?.title,
+				label: (
+					<Link to={thisPath} className="a-black">
+						{route.meta?.title}
+					</Link>
+				),
+				children: isNil(children) || isEmpty(children) ? undefined : renderMenu(children, thisPath),
+			})
+			return items
+		},
+		[] as ItemType[],
+		data
+	)
 }
 interface Props {
 	route: RouteConfig
@@ -60,6 +89,7 @@ function getLatchRouteByEle(
 	return isNil(data.outlet) ? (data.matches as RouteMatch<string>[]) : getLatchRouteByEle(data.outlet)
 }
 const Layout: FunctionComponent<Props> = ({ route }: Props) => {
+	const eleRef = useRef<React.ReactElement<any, string | React.JSXElementConstructor<any>> | null>()
 	const location = useLocation()
 	const navigate = useNavigate()
 	const [keepAliveList, dispatch] = useReducer(reducer, [])
@@ -70,28 +100,17 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 		}
 		return []
 	}, [route.children])
+
 	// 匹配 当前路径要渲染的路由
-	const ele = useRoutes(routeObject)
+	eleRef.current = useRoutes(routeObject, location)
 	// 计算 匹配的路由name
 	const matchRouteObj = useMemo(() => {
-		if (isNil(ele)) {
-			return null
+		if (eleRef.current) {
+			return getMatchRouteObj(eleRef.current)
 		}
-		const matchRoute = getLatchRouteByEle(ele)
-		if (isNil(matchRoute)) {
-			return null
-		}
-		const selectedKeys: string[] = map((res) => {
-			return (res.route as RouteObjectDto).name
-		}, matchRoute)
-		const data = last(matchRoute)?.route as RouteObjectDto
-		return {
-			key: last(matchRoute)?.pathname ?? '',
-			title: data?.meta?.title ?? '',
-			name: data?.name ?? '',
-			selectedKeys,
-		}
-	}, [ele])
+		return null
+		// eslint-disable-next-line
+	}, [routeObject, location])
 	// 缓存渲染 & 判断是否404
 	useEffect(() => {
 		if (matchRouteObj) {
@@ -106,7 +125,7 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 				pathname: '/404',
 			})
 		}
-	}, [matchRouteObj, location, navigate])
+	}, [location.pathname, matchRouteObj, navigate])
 	// 生成删除tag函数
 	const delKeepAlive = useCallback(
 		(key: string) => {
@@ -120,23 +139,26 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 		},
 		[navigate]
 	)
-	const include = useMemo(() => {
-		return map((res) => res.key, keepAliveList)
-	}, [keepAliveList])
+	const items = useMemo(() => {
+		return renderMenu(route.children ?? [])
+	}, [route.children])
 	return (
 		<ALayout>
 			<ALayout>
 				<ALayout.Sider width={180} theme="light" className={$styles.fixed}>
-					<Menu selectedKeys={matchRouteObj?.selectedKeys} defaultOpenKeys={matchRouteObj?.selectedKeys} mode="inline">
-						{renderMenu(route.children ?? [])}
-					</Menu>
+					<Menu
+						selectedKeys={matchRouteObj?.selectedKeys}
+						defaultOpenKeys={matchRouteObj?.selectedKeys}
+						mode="inline"
+						items={items}
+					/>
 				</ALayout.Sider>
 				<ALayout style={{ marginLeft: 180 }}>
 					<TagsView delKeepAlive={delKeepAlive} keepAliveList={keepAliveList} />
 					<ALayout.Content className="app-content">
 						<Suspense fallback={<Loading />}>
-							<KeepAlive activeName={matchRouteObj?.key} include={include} isAsyncInclude>
-								{ele}
+							<KeepAlive activeName={matchRouteObj?.key} include={map((res) => res.key, keepAliveList)} isAsyncInclude>
+								{eleRef.current}
 							</KeepAlive>
 						</Suspense>
 					</ALayout.Content>
