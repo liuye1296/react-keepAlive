@@ -23,20 +23,7 @@ export default ({ mode }: ConfigEnv) => {
 		'@api': path.resolve(__dirname, './src/api'),
 	}
 
-	const proxy = {
-		// '/serverApi/rantion-app-center': {
-		// 	target: 'http://192.168.120.131:9201/',
-		// 	rewrite: (path: string) => path.replace(/^\/serverApi\/rantion-app-center/, '')
-		// },
-		'/serverApi/rantion-member': {
-			target: 'http://192.168.120.131:9033/',
-			rewrite: (path: string) => path.replace(/^\/serverApi\/rantion-member/, ''),
-		},
-		'/serverApi': {
-			target: 'http://192.168.120.180:28082/serverApi',
-			rewrite: (path: string) => path.replace(/^\/serverApi/, ''),
-		},
-	}
+	const proxy = {}
 	const define = {
 		'process.env': {
 			NODE_ENV: mode === 'development' ? 'development' : 'production',
