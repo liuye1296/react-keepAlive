@@ -18,33 +18,6 @@
 .trigger {
 	font-size: 22px;
 }
-.tagsViewContainer {
-	border-top: 1px solid #e8e8e8;
-	position: fixed;
-	right: 0;
-	left: 180px;
-	z-index: 99;
-}
-.tagsHeight {
-	height: 40px;
-}
-.tagsViewWrapper {
-	display: flex;
-	border-bottom: 1px solid #e8e8e8;
-}
-.tagsViewItem {
-	position: relative;
-	cursor: pointer;
-	height: 30px;
-	margin: 8px 2px 0 0;
-	padding: 0 16px;
-	line-height: 28px;
-	background: #fafafa;
-	border: 1px solid #e8e8e8;
-	border-radius: 4px 4px 0 0;
-	border-bottom: none;
-	color: #000;
-}
 .select {
 	top: 1px;
 	color: #1890ff;

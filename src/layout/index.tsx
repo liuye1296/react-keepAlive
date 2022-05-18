@@ -115,7 +115,6 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 	}, [routeObject, location])
 	// 缓存渲染 & 判断是否404
 	useEffect(() => {
-		console.log(matchRouteObj)
 		if (matchRouteObj) {
 			matchRouteObj.include &&
 				dispatch({
@@ -138,10 +137,11 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 				payload: {
 					key,
 					navigate,
+					activeKey: matchRouteObj?.key ?? '',
 				},
 			})
 		},
-		[navigate]
+		[navigate, matchRouteObj?.key]
 	)
 	const items = useMemo(() => {
 		return renderMenu(route.children ?? [])
@@ -158,7 +158,7 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 					/>
 				</ALayout.Sider>
 				<ALayout style={{ marginLeft: 180 }}>
-					<TagsView delKeepAlive={delKeepAlive} keepAliveList={keepAliveList} />
+					<TagsView delKeepAlive={delKeepAlive} activeName={matchRouteObj?.key} keepAliveList={keepAliveList} />
 					<ALayout.Content className="app-content">
 						<Suspense fallback={<Loading />}>
 							<KeepAlive activeName={matchRouteObj?.key} include={map((res) => res.key, keepAliveList)}>

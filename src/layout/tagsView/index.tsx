@@ -1,16 +1,11 @@
-import { equals, find, findIndex, is, isEmpty, last, map, mergeRight, pick, pipe } from 'ramda'
-import { Link } from 'react-router-dom'
-import { CloseOutlined } from '@ant-design/icons'
-import indexModule from './index.module.scss'
-import classNames from 'classnames/bind'
-const styles = classNames.bind(indexModule)
+import { clone, equals, find, findIndex, is, isEmpty, last, map, mergeRight, pick } from 'ramda'
+import { useNavigate } from 'react-router-dom'
 import type { NavigateFunction } from 'react-router-dom'
+import { Tabs } from 'antd'
 export interface TagsViewDto {
 	key: string
-	active: boolean
 	title: string
 	name: string
-	// ele: React.ReactElement<any, string | React.JSXElementConstructor<any>> | null
 }
 export enum ActionType {
 	del = 'DEL',
@@ -24,6 +19,7 @@ interface ActionDel {
 }
 interface ActionDelDto {
 	key: string
+	activeKey: string
 	navigate: NavigateFunction
 }
 interface ActionClear {
@@ -44,14 +40,10 @@ interface ActionUp {
 	type: ActionType.update
 	payload: Partial<TagsViewDto> | TagsViewDto[]
 }
-export interface ActionUpdateTitlePayload {
-	key: string
-	title: string
-}
 function isArray(arg: any): arg is Array<any> {
 	return is(Array)(arg)
 }
-function delKeepAlive(keepAliveList: Array<TagsViewDto>, { key, navigate }: ActionDelDto) {
+function delKeepAlive(keepAliveList: Array<TagsViewDto>, { key, navigate, activeKey }: ActionDelDto) {
 	const index = findIndex((item) => equals(item.key, key), keepAliveList)
 	if (equals(index, -1)) {
 		return keepAliveList
@@ -60,8 +52,8 @@ function delKeepAlive(keepAliveList: Array<TagsViewDto>, { key, navigate }: Acti
 	if (keepAliveList.length > 1) {
 		const index = findIndex((item) => equals(item.key, key), keepAliveList)
 		const data = keepAliveList[index]
-		// 如果删除是  当前渲染     需要移动位置
-		if (data && data.active) {
+		// 如果删除是  当前渲染  需要移动位置
+		if (data && equals(data.key, activeKey)) {
 			// 如果是最后一个 那么  跳转到上一个
 			if (equals(index, keepAliveList.length - 1)) {
 				pathname = keepAliveList[index - 1].key
@@ -77,28 +69,17 @@ function delKeepAlive(keepAliveList: Array<TagsViewDto>, { key, navigate }: Acti
 	}
 	return keepAliveList.filter((_, k) => !equals(index, k))
 }
-const mergeMatchRoute = pipe(pick(['key', 'title', 'ele', 'name']), mergeRight({ active: true }))
 function addKeepAlive(state: Array<TagsViewDto>, matchRouteObj: ActionTypeAddPayload) {
-	if (state.some((item) => equals(item.key, matchRouteObj.key) && item.active)) {
+	if (state.some((item) => equals(item.key, matchRouteObj.key))) {
 		return state
 	}
-	let isNew = true
 	// 改变选中的值
-	const data = map((item) => {
-		if (equals(item.key, matchRouteObj.key)) {
-			item.active = true
-			isNew = false
-		} else {
-			item.active = false
-		}
-		return item
-	}, state)
-	if (isNew) {
-		if (data.length >= 10) {
-			data.shift()
-		}
-		data.push(mergeMatchRoute(matchRouteObj))
+	const data = clone(state)
+	if (data.length >= 10) {
+		data.shift()
 	}
+	data.push(pick(['key', 'title', 'ele', 'name'], matchRouteObj))
+
 	return data
 }
 const updateKeepAlive = (state: Array<TagsViewDto>, keepAlive: Partial<TagsViewDto>) => {
@@ -133,46 +114,35 @@ export const reducer = (state: Array<TagsViewDto>, action: Action): TagsViewDto[
 interface Props {
 	delKeepAlive: (key: string) => void
 	keepAliveList: Array<TagsViewDto>
+	activeName?: string
 }
-function TagsView({ delKeepAlive, keepAliveList }: Props) {
+function TagsView({ delKeepAlive, keepAliveList, activeName = 'notActiveKey' }: Props) {
+	const navigate = useNavigate()
+	function hdChange(key: string) {
+		if (key && !equals(key, 'notActiveKey')) navigate({ pathname: key })
+	}
+	function hdEdit(key: string) {
+		if (key && !equals(key, 'notActiveKey')) delKeepAlive(key)
+	}
+	const closable = equals(keepAliveList.length, 1)
 	return (
-		<>
-			<div className={indexModule.tagsViewContainer} style={{ background: '#fff', paddingLeft: '16px' }}>
-				<div className={indexModule.tagsViewWrapper}>
-					{map(
-						(tag) => (
-							<Link
-								to={tag.key}
-								className={styles({
-									tagsViewItem: true,
-									select: tag.active || equals(keepAliveList.length, 1),
-								})}
-								color="#fff"
-								key={tag.key}
-							>
-								{tag.title}
-								{keepAliveList.length > 1 && (
-									<CloseOutlined
-										className={indexModule.closeIcon}
-										onClick={(event) => {
-											event.stopPropagation()
-											event.preventDefault()
-											delKeepAlive(tag.key)
-										}}
-									/>
-								)}
-							</Link>
-						),
-						keepAliveList
-					)}
-				</div>
-			</div>
-			<div
-				className={styles({
-					tagsHeight: !isEmpty(keepAliveList),
-				})}
-			/>
-		</>
+		<div className="tagsView">
+			<Tabs
+				type="editable-card"
+				onChange={hdChange}
+				className="tagsView-tabs"
+				hideAdd
+				activeKey={activeName}
+				onEdit={hdEdit}
+			>
+				{map(
+					(tag) => (
+						<Tabs.TabPane tab={tag.title} key={tag.key} closable={!closable} />
+					),
+					keepAliveList
+				)}
+			</Tabs>
+		</div>
 	)
 }
 
