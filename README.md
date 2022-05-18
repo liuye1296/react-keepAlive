@@ -1,5 +1,6 @@
 ### 关于本项目
-基于 react-routerV6 原生实现 KeepAlive 无需任何其他库或者其他插件
+基于 createPortal 原生实现 KeepAlive 无需任何其他库或者其他插件
+利用  react-routerV6 获取到路由信息 实现tags
 
 ### 原理：
    ####核心API  
@@ -11,7 +12,7 @@
 ### 核心代码：
     /*路由 渲染layout组件  在layout里面利用 useRoutes 匹配  路由信息跟vnode
     然后传递给 /components/KeepAlive 组件
-    KeepAlive 自己缓存一个Map 对象 map.set('路由信息的pathname',vnode)
+    KeepAlive 自己缓存一个数组对象 Array<{key：路由信息的pathname,value:vnode }>
     然后匹配当前路由的 pathname 渲染对应的 vnode 
     没匹配的就利用createPortal渲染到DIV里面
     
