@@ -1,4 +1,5 @@
-import { FunctionComponent, memo, Suspense, useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
+import { memo, Suspense, useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
+import type { FunctionComponent, Dispatch, JSXElementConstructor, ReactElement } from 'react'
 import { BackTop, Layout as ALayout, Menu } from 'antd'
 import { Link, useLocation, useNavigate, useRoutes } from 'react-router-dom'
 import { equals, filter, isEmpty, isNil, last, map, not, reduce } from 'ramda'
@@ -14,7 +15,7 @@ export interface RouteObjectDto extends RouteObject {
 	name: string
 	meta?: { title: string }
 }
-function makeRouteObject(routes: RouteConfig[], dispatch: React.Dispatch<Action>): Array<RouteObjectDto> {
+function makeRouteObject(routes: RouteConfig[], dispatch: Dispatch<Action>): Array<RouteObjectDto> {
 	return map((route) => {
 		return {
 			path: route.path,
@@ -30,7 +31,7 @@ function makeRouteObject(routes: RouteConfig[], dispatch: React.Dispatch<Action>
 	}, routes)
 }
 
-function getMatchRouteObj(ele: React.ReactElement<any, string | React.JSXElementConstructor<any>> | null) {
+function getMatchRouteObj(ele: ReactElement | null) {
 	if (isNil(ele)) {
 		return null
 	}
@@ -86,15 +87,13 @@ function renderMenu(data: Array<RouteConfig>, path?: string) {
 interface Props {
 	route: RouteConfig
 }
-function getLatchRouteByEle(
-	ele: React.ReactElement<any, string | React.JSXElementConstructor<any>>
-): RouteMatch[] | null {
+function getLatchRouteByEle(ele: ReactElement): RouteMatch[] | null {
 	const data = ele?.props.value
 	const matches = data.matches as RouteMatch[]
 	return isNil(data.outlet) ? matches : getLatchRouteByEle(data.outlet)
 }
 const Layout: FunctionComponent<Props> = ({ route }: Props) => {
-	const eleRef = useRef<React.ReactElement<any, string | React.JSXElementConstructor<any>> | null>()
+	const eleRef = useRef<ReactElement<any, string | JSXElementConstructor<any>> | null>()
 	const location = useLocation()
 	const navigate = useNavigate()
 	const [keepAliveList, dispatch] = useReducer(reducer, [])
