@@ -1,4 +1,4 @@
-import { clone, equals, find, findIndex, is, isEmpty, last, map, mergeRight, pick } from 'ramda'
+import { equals, find, findIndex, is, isEmpty, last, map, mergeRight, pick } from 'ramda'
 import { useNavigate } from 'react-router-dom'
 import type { NavigateFunction } from 'react-router-dom'
 import { Tabs } from 'antd'
@@ -74,7 +74,7 @@ function addKeepAlive(state: Array<TagsViewDto>, matchRouteObj: ActionTypeAddPay
 		return state
 	}
 	// 改变选中的值
-	const data = clone(state)
+	const data = [...state]
 	if (data.length >= 10) {
 		data.shift()
 	}
