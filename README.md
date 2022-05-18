@@ -14,8 +14,8 @@ react-router > 6 <br>
    ####核心API  
      1：react-routerV6 的 useRoutes。
      2：React 的  createPortal。
-   利用 useRoutes 动态匹配路由  存储每次匹配到的信息<br/>。
-   利用 createPortal 将非当前渲染的路由 移动到一个 document.createElement('div') 当中
+      利用 useRoutes 动态匹配路由  存储每次匹配到的信息<br/>。
+      利用 createPortal 将非当前渲染的路由 移动到一个 document.createElement('div') 当中
 
 ### 核心代码：
     /*路由 渲染layout组件  在layout里面利用 useRoutes 匹配  路由信息跟vnode
