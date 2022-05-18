@@ -1,7 +1,15 @@
-### 关于本项目
+## 关于本项目
 基于 createPortal 原生实现 KeepAlive 无需任何其他库或者其他插件
-利用  react-routerV6 获取到路由信息 实现tags
-
+利用  react-routerV6 获取到路由信息 实现多页签<br/>
+非 antd-pro umijs
+##工程
+vite
+##语言
+typeScript
+##技术
+React > 16.8  支持18<br>
+antd > 4<br>
+react-router > 6 <br>
 ### 原理：
    ####核心API  
      1：react-routerV6 的 useRoutes。
