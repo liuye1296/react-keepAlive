@@ -19,7 +19,7 @@ interface ActionDel {
 }
 interface ActionDelDto {
 	key: string
-	activeKey: string
+	activeKey?: string
 	navigate: NavigateFunction
 }
 interface ActionClear {

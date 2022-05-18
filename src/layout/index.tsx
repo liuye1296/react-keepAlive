@@ -137,7 +137,7 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 				payload: {
 					key,
 					navigate,
-					activeKey: matchRouteObj?.key ?? '',
+					activeKey: matchRouteObj?.key,
 				},
 			})
 		},
