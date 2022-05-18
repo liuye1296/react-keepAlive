@@ -78,7 +78,7 @@ function addKeepAlive(state: Array<TagsViewDto>, matchRouteObj: ActionTypeAddPay
 	if (data.length >= 10) {
 		data.shift()
 	}
-	data.push(pick(['key', 'title', 'ele', 'name'], matchRouteObj))
+	data.push(pick(['key', 'title', 'name'], matchRouteObj))
 
 	return data
 }
