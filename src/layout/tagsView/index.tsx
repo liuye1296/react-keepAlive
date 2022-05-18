@@ -112,17 +112,26 @@ export const reducer = (state: Array<TagsViewDto>, action: Action): TagsViewDto[
 	}
 }
 interface Props {
-	delKeepAlive: (key: string) => void
+	dispatch: (value: Action) => void
 	keepAliveList: Array<TagsViewDto>
 	activeName?: string
 }
-function TagsView({ delKeepAlive, keepAliveList, activeName = 'notActiveKey' }: Props) {
+function TagsView({ dispatch, keepAliveList, activeName = 'notActiveKey' }: Props) {
 	const navigate = useNavigate()
 	function hdChange(key: string) {
 		if (key && !equals(key, 'notActiveKey')) navigate({ pathname: key })
 	}
 	function hdEdit(key: string) {
-		if (key && !equals(key, 'notActiveKey')) delKeepAlive(key)
+		if (key && !equals(key, 'notActiveKey')) {
+			dispatch({
+				type: ActionType.del,
+				payload: {
+					key,
+					navigate,
+					activeKey: activeName,
+				},
+			})
+		}
 	}
 	const closable = equals(keepAliveList.length, 1)
 	return (

@@ -1,4 +1,4 @@
-import { memo, Suspense, useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
+import { memo, Suspense, useEffect, useMemo, useReducer, useRef } from 'react'
 import type { FunctionComponent, Dispatch, JSXElementConstructor, ReactElement } from 'react'
 import { BackTop, Layout as ALayout, Menu } from 'antd'
 import { Link, useLocation, useNavigate, useRoutes } from 'react-router-dom'
@@ -129,20 +129,6 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 			})
 		}
 	}, [location.pathname, matchRouteObj, navigate])
-	// 生成删除tag函数
-	const delKeepAlive = useCallback(
-		(key: string) => {
-			dispatch({
-				type: ActionType.del,
-				payload: {
-					key,
-					navigate,
-					activeKey: matchRouteObj?.key,
-				},
-			})
-		},
-		[navigate, matchRouteObj?.key]
-	)
 	const items = useMemo(() => {
 		return renderMenu(route.children ?? [])
 	}, [route.children])
@@ -158,7 +144,7 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 					/>
 				</ALayout.Sider>
 				<ALayout style={{ marginLeft: 180 }}>
-					<TagsView delKeepAlive={delKeepAlive} activeName={matchRouteObj?.key} keepAliveList={keepAliveList} />
+					<TagsView dispatch={dispatch} activeName={matchRouteObj?.key} keepAliveList={keepAliveList} />
 					<ALayout.Content className="app-content">
 						<Suspense fallback={<Loading />}>
 							<KeepAlive activeName={matchRouteObj?.key} include={map((res) => res.key, keepAliveList)}>
