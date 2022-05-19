@@ -1,8 +1,9 @@
-import ReactDOM from 'react-dom'
+import { createPortal } from 'react-dom'
 import { equals, isNil, map, filter } from 'ramda'
-import { memo, RefObject, useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
+import type { RefObject, ReactNode } from 'react'
 export interface ComponentReactElement {
-	children?: React.ReactNode | React.ReactNode[]
+	children?: ReactNode | ReactNode[]
 }
 interface Props extends ComponentReactElement {
 	activeName?: string
@@ -12,7 +13,7 @@ interface Props extends ComponentReactElement {
 }
 function KeepAlive({ activeName, children, exclude, include, maxLen = 10 }: Props) {
 	const containerRef = useRef<HTMLDivElement>(null)
-	const [cacheComponents, setCacheComponents] = useState<Array<{ name: string; ele?: React.ReactNode }>>([])
+	const [cacheComponents, setCacheComponents] = useState<Array<{ name: string; ele?: ReactNode }>>([])
 	useEffect(() => {
 		if (isNil(activeName)) {
 			return
@@ -83,6 +84,6 @@ function Component({ active, children, name, renderDiv }: ComponentProps) {
 	useEffect(() => {
 		targetElement.setAttribute('id', name)
 	}, [name, targetElement])
-	return <>{activatedRef.current && ReactDOM.createPortal(children, targetElement)}</>
+	return <>{activatedRef.current && createPortal(children, targetElement)}</>
 }
 export const KeepAliveComponent = memo(Component)
