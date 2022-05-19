@@ -24,8 +24,8 @@ function KeepAlive({ activeName, children, exclude, include, maxLen = 10 }: Prop
 				reactNodes = reactNodes.slice(1)
 			}
 			// 添加
-			const component = reactNodes.find((res) => equals(res.name, activeName))
-			if (isNil(component)) {
+			const reactNode = reactNodes.find((res) => equals(res.name, activeName))
+			if (isNil(reactNode)) {
 				reactNodes = [
 					...reactNodes,
 					{
