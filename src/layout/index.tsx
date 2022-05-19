@@ -3,14 +3,15 @@ import type { FunctionComponent, Dispatch, JSXElementConstructor, ReactElement }
 import { BackTop, Layout as ALayout, Menu } from 'antd'
 import { Link, useLocation, useNavigate, useRoutes } from 'react-router-dom'
 import { equals, filter, isEmpty, isNil, last, map, not, reduce } from 'ramda'
-import TagsView, { Action, ActionType, reducer } from './tagsView'
+import TagsView, { ActionType, reducer } from './tagsView'
+import type { Action } from './tagsView'
 import { Loading } from '@/components/Loading'
 import $styles from './tagsView/index.module.scss'
 import type { RouteMatch, RouteObject } from 'react-router'
 import KeepAlive from '@/components/KeepAlive'
 import { ViewProvider } from '@/hooks/useView'
-import { RouteConfig } from '@/router/configure'
-import { ItemType } from 'antd/lib/menu/hooks/useItems'
+import type { RouteConfig } from '@/router/configure'
+import type { ItemType } from 'antd/lib/menu/hooks/useItems'
 export interface RouteObjectDto extends RouteObject {
 	name: string
 	meta?: { title: string }

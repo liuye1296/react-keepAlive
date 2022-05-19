@@ -1,7 +1,8 @@
 import { NotFound } from '@/components/NotFound'
 import Children from '@/router/Children'
 import { lazy } from 'react'
-export type Component = React.ComponentType<any> | React.LazyExoticComponent<any>
+import type { ComponentType, LazyExoticComponent } from 'react'
+export type Component = ComponentType<any> | LazyExoticComponent<any>
 export interface RouteConfig {
 	path: string
 	models?: () => Array<PromiseLike<any>>

@@ -1,8 +1,9 @@
 import { createContext, useContext } from 'react'
-import { Action } from '@/layout/tagsView'
+import type { Dispatch } from 'react'
+import type { Action } from '@/layout/tagsView'
 interface ViewContext {
 	name?: string
-	dispatch?: React.Dispatch<Action>
+	dispatch?: Dispatch<Action>
 	mate?: any
 }
 const ViewContext = createContext<ViewContext>({})
