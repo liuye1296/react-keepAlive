@@ -13,21 +13,21 @@ interface Props extends ComponentReactElement {
 }
 function KeepAlive({ activeName, children, exclude, include, maxLen = 10 }: Props) {
 	const containerRef = useRef<HTMLDivElement>(null)
-	const [cacheComponents, setCacheComponents] = useState<Array<{ name: string; ele?: ReactNode }>>([])
+	const [cacheReactNodes, setCacheReactNodes] = useState<Array<{ name: string; ele?: ReactNode }>>([])
 	useEffect(() => {
 		if (isNil(activeName)) {
 			return
 		}
-		setCacheComponents((components) => {
+		setCacheReactNodes((reactNodes) => {
 			// 缓存超过上限的
-			if (components.length >= maxLen) {
-				components = components.slice(1)
+			if (reactNodes.length >= maxLen) {
+				reactNodes = reactNodes.slice(1)
 			}
 			// 添加
-			const component = components.find((res) => equals(res.name, activeName))
+			const component = reactNodes.find((res) => equals(res.name, activeName))
 			if (isNil(component)) {
-				components = [
-					...components,
+				reactNodes = [
+					...reactNodes,
 					{
 						name: activeName,
 						ele: children,
@@ -35,7 +35,7 @@ function KeepAlive({ activeName, children, exclude, include, maxLen = 10 }: Prop
 				]
 			}
 			return isNil(exclude) && isNil(include)
-				? components
+				? reactNodes
 				: filter(({ name }) => {
 						if (exclude && exclude.includes(name)) {
 							return false
@@ -44,7 +44,7 @@ function KeepAlive({ activeName, children, exclude, include, maxLen = 10 }: Prop
 							return include.includes(name)
 						}
 						return true
-				  }, components)
+				  }, reactNodes)
 		})
 	}, [children, activeName, exclude, maxLen, include])
 	return (
@@ -56,7 +56,7 @@ function KeepAlive({ activeName, children, exclude, include, maxLen = 10 }: Prop
 						{ele}
 					</Component>
 				),
-				cacheComponents
+				cacheReactNodes
 			)}
 		</>
 	)
