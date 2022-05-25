@@ -1,4 +1,4 @@
-import { equals, find, findIndex, is, isEmpty, last, map, mergeRight, pick } from 'ramda'
+import { equals, filter, find, findIndex, is, isEmpty, last, map, mergeRight, pick, length, append } from 'ramda'
 import { useNavigate } from 'react-router-dom'
 import type { NavigateFunction } from 'react-router-dom'
 import { Tabs } from 'antd'
@@ -49,7 +49,7 @@ function delKeepAlive(keepAliveList: Array<TagsViewDto>, { key, navigate, active
 		return keepAliveList
 	}
 	let pathname = ''
-	if (keepAliveList.length > 1) {
+	if (length(keepAliveList) > 1) {
 		const index = findIndex((item) => equals(item.key, key), keepAliveList)
 		const data = keepAliveList[index]
 		// 如果删除是  当前渲染  需要移动位置
@@ -63,24 +63,19 @@ function delKeepAlive(keepAliveList: Array<TagsViewDto>, { key, navigate, active
 			}
 		}
 	}
-	keepAliveList.splice(index, 1)
 	if (!isEmpty(pathname)) {
 		navigate({ pathname })
 	}
-	return keepAliveList.filter((_, k) => !equals(index, k))
+	return filter((item) => !equals(item.key, key), keepAliveList)
 }
 function addKeepAlive(state: Array<TagsViewDto>, matchRouteObj: ActionTypeAddPayload) {
 	if (state.some((item) => equals(item.key, matchRouteObj.key))) {
 		return state
 	}
-	// 改变选中的值
-	const data = [...state]
-	if (data.length >= 10) {
-		data.shift()
+	if (length(state) >= 10) {
+		state.shift()
 	}
-	data.push(pick(['key', 'title', 'name'], matchRouteObj))
-
-	return data
+	return append(pick(['key', 'title', 'name'], matchRouteObj), state)
 }
 const updateKeepAlive = (state: Array<TagsViewDto>, keepAlive: Partial<TagsViewDto>) => {
 	return map((item) => (equals(item.key, keepAlive.key) ? mergeRight(item, keepAlive) : item), state)
