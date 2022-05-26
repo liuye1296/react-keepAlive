@@ -1,9 +1,9 @@
 {
   "name": "react-keepAlive",
   "version": "0.0.2",
-  "private": true,
   "description": "react18 + antd4 ",
   "author": "antes",
+  "license":"MIT",
   "keywords": [
     "keepAlive",
     "react"
