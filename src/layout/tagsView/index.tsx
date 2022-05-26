@@ -1,4 +1,22 @@
-import { equals, filter, find, findIndex, is, isEmpty, last, map, mergeRight, pick, length, append } from 'ramda'
+import {
+	equals,
+	filter,
+	find,
+	findIndex,
+	isEmpty,
+	last,
+	map,
+	mergeRight,
+	pick,
+	length,
+	append,
+	slice,
+	pipe,
+	not,
+	curry,
+	ifElse,
+	is,
+} from 'ramda'
 import { useNavigate } from 'react-router-dom'
 import type { NavigateFunction } from 'react-router-dom'
 import { Tabs } from 'antd'
@@ -40,9 +58,7 @@ interface ActionUp {
 	type: ActionType.update
 	payload: Partial<TagsViewDto> | TagsViewDto[]
 }
-function isArray(arg: any): arg is Array<any> {
-	return is(Array)(arg)
-}
+const isArray = is(Array)
 function delKeepAlive(keepAliveList: Array<TagsViewDto>, { key, navigate, activeKey }: ActionDelDto) {
 	const index = findIndex((item) => equals(item.key, key), keepAliveList)
 	if (equals(index, -1)) {
@@ -50,7 +66,6 @@ function delKeepAlive(keepAliveList: Array<TagsViewDto>, { key, navigate, active
 	}
 	let pathname = ''
 	if (length(keepAliveList) > 1) {
-		const index = findIndex((item) => equals(item.key, key), keepAliveList)
 		const data = keepAliveList[index]
 		// 如果删除是  当前渲染  需要移动位置
 		if (data && equals(data.key, activeKey)) {
@@ -72,15 +87,15 @@ function addKeepAlive(state: Array<TagsViewDto>, matchRouteObj: ActionTypeAddPay
 	if (state.some((item) => equals(item.key, matchRouteObj.key))) {
 		return state
 	}
-	if (length(state) >= 10) {
-		state.shift()
-	}
-	return append(pick(['key', 'title', 'name'], matchRouteObj), state)
+	return append(
+		pick(['key', 'title', 'name'], matchRouteObj),
+		length(state) >= 10 ? slice(1, length(state), state) : state
+	)
 }
-const updateKeepAlive = (state: Array<TagsViewDto>, keepAlive: Partial<TagsViewDto>) => {
+const updateKeepAlive = curry((state: Array<TagsViewDto>, keepAlive: Partial<TagsViewDto>) => {
 	return map((item) => (equals(item.key, keepAlive.key) ? mergeRight(item, keepAlive) : item), state)
-}
-const updateKeepAliveList = (state: Array<TagsViewDto>, keepAlive: Array<TagsViewDto>) => {
+})
+const updateKeepAliveList = curry((state: Array<TagsViewDto>, keepAlive: Array<TagsViewDto>) => {
 	return map((item) => {
 		const data = find((res) => equals(res.key, item.key), keepAlive)
 		if (data) {
@@ -88,7 +103,7 @@ const updateKeepAliveList = (state: Array<TagsViewDto>, keepAlive: Array<TagsVie
 		}
 		return item
 	}, state)
-}
+})
 export type Action = ActionDel | ActionAdd | ActionClear | ActionUp
 export const reducer = (state: Array<TagsViewDto>, action: Action): TagsViewDto[] => {
 	switch (action.type) {
@@ -99,9 +114,7 @@ export const reducer = (state: Array<TagsViewDto>, action: Action): TagsViewDto[
 		case ActionType.clear:
 			return []
 		case ActionType.update:
-			return isArray(action.payload)
-				? updateKeepAliveList(state, action.payload)
-				: updateKeepAlive(state, action.payload)
+			return ifElse(isArray, updateKeepAliveList(state), updateKeepAlive(state))(action.payload) as any
 		default:
 			return state
 	}
@@ -111,13 +124,14 @@ interface Props {
 	keepAliveList: Array<TagsViewDto>
 	activeName?: string
 }
+const noIsNotActiveKey = pipe(equals('notActiveKey'), not)
 function TagsView({ dispatch, keepAliveList, activeName = 'notActiveKey' }: Props) {
 	const navigate = useNavigate()
 	function hdChange(key: string) {
-		if (key && !equals(key, 'notActiveKey')) navigate({ pathname: key })
+		if (key && noIsNotActiveKey(key)) navigate({ pathname: key })
 	}
 	function hdEdit(key: string) {
-		if (key && !equals(key, 'notActiveKey')) {
+		if (key && noIsNotActiveKey(key)) {
 			dispatch({
 				type: ActionType.del,
 				payload: {
@@ -128,7 +142,7 @@ function TagsView({ dispatch, keepAliveList, activeName = 'notActiveKey' }: Prop
 			})
 		}
 	}
-	const closable = equals(keepAliveList.length, 1)
+	const closable = equals(1, length(keepAliveList))
 	return (
 		<div className="tagsView">
 			<Tabs
