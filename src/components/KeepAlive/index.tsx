@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom'
-import { equals, isNil, map, filter } from 'ramda'
+import { equals, isNil, map, filter, slice, length, append, includes } from 'ramda'
 import { memo, useEffect, useRef, useState } from 'react'
 import type { RefObject, ReactNode } from 'react'
 export interface ComponentReactElement {
@@ -21,27 +21,29 @@ function KeepAlive({ activeName, children, exclude, include, maxLen = 10 }: Prop
 		setCacheReactNodes((reactNodes) => {
 			// 缓存超过上限的
 			if (reactNodes.length >= maxLen) {
-				reactNodes = reactNodes.slice(1)
+				reactNodes = slice(1, length(reactNodes), reactNodes)
 			}
 			// 添加
 			const reactNode = reactNodes.find((res) => equals(res.name, activeName))
 			if (isNil(reactNode)) {
-				reactNodes = [
-					...reactNodes,
+				reactNodes = append(
 					{
 						name: activeName,
 						ele: children,
 					},
-				]
+					reactNodes
+				)
 			}
 			return isNil(exclude) && isNil(include)
 				? reactNodes
 				: filter(({ name }) => {
-						if (exclude && exclude.includes(name)) {
-							return false
+						if (exclude) {
+							if (includes(name, exclude)) {
+								return false
+							}
 						}
 						if (include) {
-							return include.includes(name)
+							return includes(name, include)
 						}
 						return true
 				  }, reactNodes)
