@@ -37,10 +37,8 @@ function KeepAlive({ activeName, children, exclude, include, maxLen = 10 }: Prop
 			return isNil(exclude) && isNil(include)
 				? reactNodes
 				: filter(({ name }) => {
-						if (exclude) {
-							if (includes(name, exclude)) {
-								return false
-							}
+						if (exclude && includes(name, exclude)) {
+							return false
 						}
 						if (include) {
 							return includes(name, include)
