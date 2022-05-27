@@ -61,11 +61,11 @@ function mergePtah(path: string, paterPath = '') {
 function renderMenu(data: Array<RouteConfig>, path?: string) {
 	return reduce(
 		(items, route) => {
+			if (route.alwaysShow) {
+				return items
+			}
 			const thisPath = mergePtah(route.path, path)
 			const children = filter((route) => not(route.alwaysShow), route.children ?? [])
-			if (route.alwaysShow) {
-				return
-			}
 			const hasChildren = isNil(children) || isEmpty(children)
 			items.push({
 				key: route.name,
@@ -99,11 +99,11 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 	const navigate = useNavigate()
 	const [keepAliveList, dispatch] = useReducer(reducer, [])
 	// 生成子路由
-	const routeObject = useMemo(() => {
-		if (route.children) {
-			return makeRouteObject(route.children, dispatch)
+	const [routeObject, items] = useMemo(() => {
+		if (isNil(route.children)) {
+			return [[], []] as [RouteObjectDto[], ItemType[]]
 		}
-		return []
+		return [makeRouteObject(route.children, dispatch), renderMenu(route.children)]
 	}, [route.children])
 
 	// 匹配 当前路径要渲染的路由
@@ -130,9 +130,6 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 			})
 		}
 	}, [location.pathname, matchRouteObj, navigate])
-	const items = useMemo(() => {
-		return renderMenu(route.children ?? [])
-	}, [route.children])
 	return (
 		<ALayout>
 			<ALayout>
