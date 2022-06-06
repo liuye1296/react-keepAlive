@@ -5,7 +5,7 @@ import { useLocation } from 'react-router'
 export default function useUpdateTagName(key?: string) {
 	const { dispatch } = useView()
 	const location = useLocation()
-	const updateTagName = useCallback(
+	return useCallback(
 		(title: string) => {
 			if (dispatch && (key || location)) {
 				dispatch({
@@ -19,5 +19,4 @@ export default function useUpdateTagName(key?: string) {
 		},
 		[key, location, dispatch]
 	)
-	return updateTagName
 }

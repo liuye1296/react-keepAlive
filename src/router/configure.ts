@@ -32,6 +32,12 @@ const routesOther: Array<RouteConfig> = [
 		name: 'Role',
 	},
 	{
+		path: 'update',
+		component: lazy(() => import('@/views/update')),
+		meta: { title: '修改页签名称' },
+		name: 'Update',
+	},
+	{
 		path: 'nesting',
 		component: Children,
 		meta: { title: '嵌套路由' },
