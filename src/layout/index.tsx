@@ -23,8 +23,8 @@ function makeRouteObject(routes: RouteConfig[], dispatch: Dispatch<Action>): Arr
 			name: route.name,
 			meta: route.meta,
 			element: (
-				<ViewProvider value={{ name: route.name }}>
-					<route.component name={route.name} dispatch={dispatch} />
+				<ViewProvider value={{ name: route.name, dispatch, meta: route.meta }}>
+					<route.component />
 				</ViewProvider>
 			),
 			children: isNil(route.children) ? undefined : makeRouteObject(route.children, dispatch),

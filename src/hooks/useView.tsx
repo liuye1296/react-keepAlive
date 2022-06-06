@@ -4,7 +4,7 @@ import type { Action } from '@/layout/tagsView'
 interface ViewContext {
 	name?: string
 	dispatch?: Dispatch<Action>
-	mate?: any
+	meta?: { title: string }
 }
 const ViewContext = createContext<ViewContext>({})
 const Provider = ViewContext.Provider
