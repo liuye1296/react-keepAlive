@@ -7,12 +7,12 @@ import TagsView, { ActionType, reducer } from './tagsView'
 import type { Action } from './tagsView'
 import { Loading } from '@/components/Loading'
 import $styles from './tagsView/index.module.scss'
-import type { RouteMatch, RouteObject } from 'react-router'
+import type { RouteMatch, NonIndexRouteObject } from 'react-router-dom'
 import KeepAlive from '@/components/KeepAlive'
 import { ViewProvider } from '@/hooks/useView'
 import type { RouteConfig } from '@/router/configure'
 import type { ItemType } from 'antd/lib/menu/hooks/useItems'
-export interface RouteObjectDto extends RouteObject {
+export interface RouteObjectDto extends NonIndexRouteObject {
 	name: string
 	meta?: { title: string }
 }
@@ -40,16 +40,14 @@ function getMatchRouteObj(ele: ReactElement | null) {
 	if (isNil(matchRoute)) {
 		return null
 	}
-	const selectedKeys: string[] = map((res) => {
-		return (res.route as RouteObjectDto).name
-	}, matchRoute)
+	const selectedKeys: string[] = map((res) => res.route.path ?? '', matchRoute)
 	const data = last(matchRoute)?.route as RouteObjectDto
 	return {
 		key: last(matchRoute)?.pathname ?? '',
 		title: data?.meta?.title ?? '',
 		name: data?.name ?? '',
 		selectedKeys,
-		include: isNil(data.children),
+		include: isNil(data?.children),
 	}
 }
 function mergePtah(path: string, paterPath = '') {
@@ -88,10 +86,18 @@ function renderMenu(data: Array<RouteConfig>, path?: string) {
 interface Props {
 	route: RouteConfig
 }
+function getRouteContext(data: any): any {
+	if (isNil(data.children)) {
+		return null
+	}
+	return isNil(data.routeContext) ? getRouteContext(data.children.props) : data.routeContext
+}
 function getLatchRouteByEle(ele: ReactElement): RouteMatch[] | null {
-	const data = ele?.props.value
-	const matches = data.matches as RouteMatch[]
-	return isNil(data.outlet) ? matches : getLatchRouteByEle(data.outlet)
+	if (ele) {
+		const data = getRouteContext(ele.props)
+		return isNil(data?.outlet) ? (data?.matches as RouteMatch[]) : getLatchRouteByEle(data?.outlet)
+	}
+	return null
 }
 const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 	const eleRef = useRef<ReactElement<any, string | JSXElementConstructor<any>> | null>()

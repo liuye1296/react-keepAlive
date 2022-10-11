@@ -1,7 +1,7 @@
 import { useView } from '@/hooks/useView'
 import { useCallback } from 'react'
 import { ActionType } from '@/layout/tagsView'
-import { useLocation } from 'react-router'
+import { useLocation } from 'react-router-dom'
 export default function useUpdateTagName(key?: string) {
 	const { dispatch } = useView()
 	const location = useLocation()

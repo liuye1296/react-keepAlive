@@ -152,14 +152,16 @@ function TagsView({ dispatch, keepAliveList, activeName = 'notActiveKey' }: Prop
 				hideAdd
 				activeKey={activeName}
 				onEdit={hdEdit}
-			>
-				{map(
-					(tag) => (
-						<Tabs.TabPane tab={tag.title} key={tag.key} closable={!closable} />
-					),
+				items={map(
+					(tag) => ({
+						key: tag.key,
+						label: tag.title,
+						closable: !closable,
+						// <Tabs.TabPane tab={tag.title} key={tag.key} closable={!closable} />
+					}),
 					keepAliveList
 				)}
-			</Tabs>
+			/>
 		</div>
 	)
 }

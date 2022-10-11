@@ -2,21 +2,29 @@
 	"compilerOptions": {
 		"experimentalDecorators": true,
 		"baseUrl": ".",
-		"module": "esnext",
-		"target": "esnext",
+		"module": "ESNext",
+		"target": "ESNext",
 		"sourceMap": true,
-    	"jsx": "react-jsx",
-		"types": ["node", "vite/client", "vite-plugin-svgr/client"],
+		"jsx": "react-jsx",
+		"types": ["node", "vite/client"],
 		"alwaysStrict": true,
 		"moduleResolution": "node",
 		"rootDir": ".",
-		"plugins": [{ "name": "typescript-plugin-css-modules" }],
+		"plugins": [
+			{
+				"name": "typescript-plugin-css-modules",
+				"options": {
+					"customMatcher": "\\.(c|le||lle|sa|sc)ss$"
+				}
+			}
+		],
 		"forceConsistentCasingInFileNames": false,
 		"noImplicitReturns": true,
 		"noImplicitThis": true,
 		"noImplicitAny": true,
 		"importHelpers": true,
 		"strictNullChecks": true,
+		"skipLibCheck": true,
 		"allowSyntheticDefaultImports": true,
 		"noUnusedLocals": true,
 		"paths": {
@@ -24,5 +32,6 @@
 		},
 		"lib": ["esnext", "dom"]
 	},
+	"include": ["src"],
 	"exclude": ["node_modules"]
 }

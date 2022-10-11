@@ -8,7 +8,7 @@ export default function Role() {
 	return (
 		<div>
 			<Input
-				placeholder="输入一个值 然后切换 组件不会被销毁"
+				placeholder="请输入页签名字"
 				onChange={(e) => {
 					name.current = e.target.value
 				}}
