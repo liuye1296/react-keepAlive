@@ -12,6 +12,7 @@ import KeepAlive from '@/components/KeepAlive'
 import { ViewProvider } from '@/hooks/useView'
 import type { RouteConfig } from '@/router/configure'
 import type { ItemType } from 'antd/lib/menu/hooks/useItems'
+export const MAXLEN = 10
 export interface RouteObjectDto extends NonIndexRouteObject {
 	name: string
 	meta?: { title: string }
@@ -151,7 +152,7 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 					<TagsView dispatch={dispatch} activeName={matchRouteObj?.key} keepAliveList={keepAliveList} />
 					<ALayout.Content className="app-content">
 						<Suspense fallback={<Loading />}>
-							<KeepAlive activeName={matchRouteObj?.key} include={map((res) => res.key, keepAliveList)}>
+							<KeepAlive activeName={matchRouteObj?.key} maxLen={MAXLEN} include={map((res) => res.key, keepAliveList)}>
 								{eleRef.current}
 							</KeepAlive>
 						</Suspense>
