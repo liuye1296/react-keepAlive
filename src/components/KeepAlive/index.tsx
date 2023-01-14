@@ -33,6 +33,10 @@ function KeepAlive({ activeName, children, exclude, include, maxLen = 10 }: Prop
 					},
 					reactNodes
 				)
+			} else {
+				reactNodes = map((res) => {
+					return equals(res.name, activeName) ? { ...res, ele: children } : res
+				}, reactNodes)
 			}
 			return isNil(exclude) && isNil(include)
 				? reactNodes
