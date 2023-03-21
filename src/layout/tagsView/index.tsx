@@ -20,6 +20,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import type { NavigateFunction } from 'react-router-dom'
 import { Tabs } from 'antd'
+import { MAXLEN } from '..'
 export interface TagsViewDto {
 	key: string
 	title: string
@@ -91,7 +92,7 @@ function addKeepAlive(state: Array<TagsViewDto>, matchRouteObj: ActionTypeAddPay
 	}
 	return append(
 		pick(['key', 'title', 'name', 'path', 'cache'], matchRouteObj),
-		length(state) >= 10 ? slice(1, length(state), state) : state
+		length(state) >= MAXLEN ? slice(1, length(state), state) : state
 	)
 }
 const updateKeepAlive = curry((state: Array<TagsViewDto>, keepAlive: Partial<TagsViewDto>) => {
