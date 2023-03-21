@@ -11,6 +11,8 @@ export interface RouteConfig {
 	name: string
 	icon?: Component
 	noCache?: boolean
+
+  cache?: boolean // 不填默认缓存
 	noTags?: boolean
 	meta?: { title: string }
 	alwaysShow?: boolean // 是否显示在导航栏 true 不显示 默认false
@@ -37,6 +39,13 @@ const routesOther: Array<RouteConfig> = [
 		meta: { title: '修改页签名称' },
 		name: 'Update',
 	},
+  {
+    path: 'no-cache',
+    component: lazy(() => import('@/views/no-cache')),
+    cache: false,
+    meta: { title: '我不缓存' },
+    name: 'NoCache',
+  },
 	{
 		path: 'nesting',
 		component: Children,
