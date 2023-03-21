@@ -24,6 +24,7 @@ export interface TagsViewDto {
 	key: string
 	title: string
 	name: string
+	cache: boolean
 }
 export enum ActionType {
 	del = 'DEL',
@@ -49,6 +50,7 @@ interface ActionTypeAddPayload {
 	title: string
 	name: string
 	selectedKeys: string[]
+	cache: boolean
 }
 interface ActionAdd {
 	type: ActionType.add
@@ -59,36 +61,36 @@ interface ActionUp {
 	payload: Partial<TagsViewDto> | TagsViewDto[]
 }
 const isArray = is(Array)
-function delKeepAlive(keepAliveList: Array<TagsViewDto>, { key, navigate, activeKey }: ActionDelDto) {
-	const index = findIndex((item) => equals(item.key, key), keepAliveList)
+function delKeepAlive(tagsViewList: Array<TagsViewDto>, { key, navigate, activeKey }: ActionDelDto) {
+	const index = findIndex((item) => equals(item.key, key), tagsViewList)
 	if (equals(index, -1)) {
-		return keepAliveList
+		return tagsViewList
 	}
 	let pathname = ''
-	if (length(keepAliveList) > 1) {
-		const data = keepAliveList[index]
+	if (length(tagsViewList) > 1) {
+		const data = tagsViewList[index]
 		// 如果删除是  当前渲染  需要移动位置
 		if (data && equals(data.key, activeKey)) {
 			// 如果是最后一个 那么  跳转到上一个
-			if (equals(index, keepAliveList.length - 1)) {
-				pathname = keepAliveList[index - 1].key
+			if (equals(index, tagsViewList.length - 1)) {
+				pathname = tagsViewList[index - 1].key
 			} else {
 				// 跳转到最后一个
-				pathname = last(keepAliveList)?.key ?? ''
+				pathname = last(tagsViewList)?.key ?? ''
 			}
 		}
 	}
 	if (!isEmpty(pathname)) {
 		navigate({ pathname })
 	}
-	return filter((item) => !equals(item.key, key), keepAliveList)
+	return filter((item) => !equals(item.key, key), tagsViewList)
 }
 function addKeepAlive(state: Array<TagsViewDto>, matchRouteObj: ActionTypeAddPayload) {
 	if (state.some((item) => equals(item.key, matchRouteObj.key))) {
 		return state
 	}
 	return append(
-		pick(['key', 'title', 'name'], matchRouteObj),
+		pick(['key', 'title', 'name', 'path', 'cache'], matchRouteObj),
 		length(state) >= 10 ? slice(1, length(state), state) : state
 	)
 }
@@ -121,11 +123,11 @@ export const reducer = (state: Array<TagsViewDto>, action: Action): TagsViewDto[
 }
 interface Props {
 	dispatch: (value: Action) => void
-	keepAliveList: Array<TagsViewDto>
+	tagsViewList: Array<TagsViewDto>
 	activeName?: string
 }
 const noIsNotActiveKey = pipe(equals('notActiveKey'), not)
-function TagsView({ dispatch, keepAliveList, activeName = 'notActiveKey' }: Props) {
+function TagsView({ dispatch, tagsViewList, activeName = 'notActiveKey' }: Props) {
 	const navigate = useNavigate()
 	function hdChange(key: string) {
 		if (key && noIsNotActiveKey(key)) navigate({ pathname: key })
@@ -142,7 +144,7 @@ function TagsView({ dispatch, keepAliveList, activeName = 'notActiveKey' }: Prop
 			})
 		}
 	}
-	const closable = equals(1, length(keepAliveList))
+	const closable = equals(1, length(tagsViewList))
 	return (
 		<div className="tagsView">
 			<Tabs
@@ -159,7 +161,7 @@ function TagsView({ dispatch, keepAliveList, activeName = 'notActiveKey' }: Prop
 						closable: !closable,
 						// <Tabs.TabPane tab={tag.title} key={tag.key} closable={!closable} />
 					}),
-					keepAliveList
+					tagsViewList
 				)}
 			/>
 		</div>
