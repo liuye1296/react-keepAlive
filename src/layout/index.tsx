@@ -180,9 +180,12 @@ const Layout: FunctionComponent<Props> = ({ route }: Props) => {
 					<TagsView dispatch={dispatch} activeName={matchRouteObj?.key} tagsViewList={tagsViewList} />
 					<ALayout.Content className="app-content">
 						<Suspense fallback={<Loading />}>
-							<KeepAlive activeName={matchRouteObj?.key} maxLen={MAXLEN} include={keepAliveList}>
-								{eleRef.current}
-							</KeepAlive>
+							<>
+								<KeepAlive activeName={matchRouteObj?.key} maxLen={MAXLEN} include={keepAliveList}>
+									{eleRef.current}
+								</KeepAlive>
+								<> {matchRouteObj?.cache ? null : eleRef.current}</>
+							</>
 						</Suspense>
 					</ALayout.Content>
 				</ALayout>
